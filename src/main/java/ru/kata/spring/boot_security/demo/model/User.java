@@ -83,6 +83,7 @@ public class User {
         this.name = name;
     }
 
+    @Column(name="name", unique=true)
     private String name;
     private String firstName;
     private String lastName;
