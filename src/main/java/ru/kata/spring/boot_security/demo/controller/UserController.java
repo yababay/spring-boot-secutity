@@ -6,16 +6,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
+import ru.kata.spring.boot_security.demo.service.MyUserDetailsService;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 @Controller
@@ -23,28 +23,24 @@ import java.util.Arrays;
 
 public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final
+    MyUserDetailsService myUserDetailsService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    RoleRepository roleRepository;
+    public UserController(MyUserDetailsService myUserDetailsService) {
+       //s.userRepository = userRepository;
+        //this.passwordEncoder = passwordEncoder;
+        //this.roleRepository = roleRepository;
+        this.myUserDetailsService = myUserDetailsService;
+    }
 
     @GetMapping
-    public String goHome(){
-        return "user-space";
+    public String goHome(Principal principal, Model model){
+        User user = myUserDetailsService.findByUserName(principal.getName());
+        model.addAttribute("user", user);
+        return "users";
     }
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping
-    public RedirectView create(@ModelAttribute User user, BindingResult errors, Model model) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Role role = roleRepository.findByName("ROLE_USER");
-        user.setRoles(Arrays.asList(role));
-        user.setEnabled(true);
-        userRepository.save(user);
-        return new RedirectView("/admin");
-    }
+
+
 }

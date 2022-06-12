@@ -1,3 +1,0 @@
-# spring-boot-secutity
-
-Subj.

@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.service;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -12,87 +13,46 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.model.Privilege;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service("userDetailsService")
 @Transactional
 public class MyUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
+    public MyUserDetailsService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
+
+    public User findByUserName(String userName){
+        return userRepository.findByName(userName);    }
+
+    @Transactional
     @Override
-    public UserDetails loadUserByUsername(String email)
+    public UserDetails loadUserByUsername(String name)
             throws UsernameNotFoundException {
+        return userRepository.findByName(name);
 
-        User user = userRepository.findByName(email);
-        if (user == null) {
-            return new org.springframework.security.core.userdetails.User(
-                    " ", " ", true, true, true, true,
-                    getAuthorities(Arrays.asList(
-                            roleRepository.findByName("ROLE_USER"))));
         }
+    public Set<Role> getRoles (ArrayList<Long> roles) {
+        ArrayList<Role> roleArray = new ArrayList<>();
+        Set<Role> roleSet = new HashSet<>();
+        for (Long roleStr :
+                roles) {
+            Optional<Role> roleOptional = roleRepository.findById(roleStr);
+            roleOptional.ifPresent(role -> {roleSet.add(role);});
 
-        return new org.springframework.security.core.userdetails.User(
-                //user.getEmail(), user.getPassword(), user.isEnabled(), true, true,
-                user.getName(), user.getPassword(), user.isEnabled(), true, true,
-                true, getAuthorities(user.getRoles()));
-    }
-
-    private Collection<? extends GrantedAuthority> getAuthorities(
-            Collection<Role> roles) {
-
-        return getGrantedAuthorities(getPrivileges(roles));
-    }
-
-    private List<String> getPrivileges(Collection<Role> roles) {
-
-        List<String> privileges = new ArrayList<>();
-        List<Privilege> collection = new ArrayList<>();
-        for (Role role : roles) {
-            privileges.add(role.getName());
-            collection.addAll(role.getPrivileges());
         }
-        for (Privilege item : collection) {
-            privileges.add(item.getName());
-        }
-        return privileges;
-    }
-
-    private List<GrantedAuthority> getGrantedAuthorities(List<String> privileges) {
-        List<GrantedAuthority> authorities = new ArrayList<>();
-        for (String privilege : privileges) {
-            authorities.add(new SimpleGrantedAuthority(privilege));
-        }
-        return authorities;
-    }
-
-
-    @Bean
-    public RoleHierarchy roleHierarchy() {
-        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_ADMIN > ROLE_STAFF \n ROLE_STAFF > ROLE_USER";
-        roleHierarchy.setHierarchy(hierarchy);
-        return roleHierarchy;
-    }
-
-    @Bean
-    public DefaultWebSecurityExpressionHandler webSecurityExpressionHandler() {
-        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-        expressionHandler.setRoleHierarchy(roleHierarchy());
-        return expressionHandler;
+        return roleSet;
     }
 
 }

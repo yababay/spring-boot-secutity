@@ -1,27 +1,40 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html lang="ru">
 <head>
-    <title>Spring Security Example</title>
+    <meta charSet="utf-8" />
+    <link rel="stylesheet" href="./css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <script src="./js/bootstrap.min.js" defer></script>
+    <style>
+        button {width: 100%; display: block;}
+    </style>
+    <title>Title</title>
 </head>
 <body>
-    <h1><b>Admin</b>, welcome spring boot security page!</h1>
-    <h2>Добавить пользователя</h2>
-    <form action="/user" method="post">
-        <table border="1">
-            <tr>
-                <td><label>Имя пользователя</label></td>
-                <td><input type="text" name="name" /></td>
-            </tr>
-            <tr>
-                <td><label>Пароль</label></td>
-                <td><input type="password" name="password" /></td>
-            </tr>
-            <tr>
-                <td><input type="submit" value="Добавить" /></td>
-            </tr>
-        </table>
-    </form>
-    <p><a href="/logout">Logout</a></p>
-
+    <header>
+        <nav class="navbar navbar-dark bg-dark shadow">
+            <button class="docs-sidebar-toggler docs-sidebar-visible me-2 d-xl-none" id="docs-sidebar-toggler" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <a class="navbar-brand ms-3" href="#/">
+                <span>Admin</span>
+            </a>
+            <div>
+                <a href="/logout" class="btn btn-primary" style="margin-right: 1rem">Logout</a>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="row">
+            <div class="col-1">
+                <button class="btn btn-primary">Admin</button>
+                <br>
+                <button class="btn btn-light">User</button>
+            </div>
+            <div class="col-11">col 2</div>
+    </main>
 </body>
 </html>
+
